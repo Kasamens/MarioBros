@@ -5,6 +5,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -19,18 +22,36 @@ public class PlayScreen implements Screen {
 
     private Hud hud;
 
+    private TmxMapLoader mapLoader;
+    private TiledMap map;
+    private OrthogonalTiledMapRenderer renderer;
     Texture texture;
     public PlayScreen(MarioBros game) {
         this.game = game;
-        texture = new Texture("badlogic.jpg");
         camera = new OrthographicCamera();
         viewport = new FitViewport(MarioBros.V_WIDTH,MarioBros.V_HEIGHT,camera);
         hud = new Hud(game.batch);
+
+        mapLoader = new TmxMapLoader();
+        map = mapLoader.load("map.tmx");
+        renderer = new OrthogonalTiledMapRenderer(map);
+        camera.position.set(viewport.getScreenWidth()/2, viewport.getScreenHeight()/2,0);
+
+
     }
 
     @Override
     public void show() {
         
+    }
+
+    public void handleInput(float dt){
+        if (Gdx.input.isTouched())
+            camera.position.x += 100 * dt;
+    }
+
+    public void update(float dt){
+        handleInput(dt);
     }
 
     @Override
@@ -40,6 +61,7 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+        update(delta);
 
     }
 
